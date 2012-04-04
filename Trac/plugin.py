@@ -43,15 +43,19 @@ class Trac(callbacks.Plugin):
     This plugin interacts with a Trac page specified in the config for viewing
     tickets."""
     threaded = True
-    def __init__(self):
-        self.tracurl = TRAC_URL
+    def __init__(self, irc):
+        self.trac_url = TRAC_URL
+        self.__parent.__init__(irc)
     def view(self, irc, msg, args, tnumber):
         opener = urllib.FancyURLopener({})
         f = opener.open(self.trac_url + '/ticket/%s' % tnumber)
         soup = BeautifulSoup.BeautifulSoup(f.read())
         ticket_sum = soup.find("h2", {"class":"summary searchable"}).string
-        irc.reply("Ticket #%s - %s - %s/ticket/%s" % (tnumber, ticket_sum,
+        if ticket_sum != Null:
+            irc.reply("Ticket #%s - %s - %s/ticket/%s" % (tnumber, ticket_sum,
                                                     self.trac_url, tnumber))
+        else:
+            irc.reply("There's no ticket with that number.")
     view = wrap(view, ["something"])
 Class = Trac
 

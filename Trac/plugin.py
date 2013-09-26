@@ -36,7 +36,7 @@ import supybot.callbacks as callbacks
 from config import TRAC_URL
 
 import urllib
-import BeautifulSoup
+import bs4 as BeautifulSoup
 
 class Trac(callbacks.Plugin):
     """
@@ -47,11 +47,11 @@ class Trac(callbacks.Plugin):
         opener = urllib.FancyURLopener({})
         f = opener.open(TRAC_URL + '/ticket/%s' % tnumber)
         soup = BeautifulSoup.BeautifulSoup(f.read())
-        ticket_sum = soup.find("h2", {"class":"summary searchable"}).string
-        if ticket_sum != None:
+        try:
+            ticket_sum = soup.find("span", {"class":"summary"}).string
             irc.reply("Ticket #%s - %s - %s/ticket/%s" % (tnumber, ticket_sum,
                                                     TRAC_URL, tnumber))
-        else:
+        except:
             irc.reply("There's no ticket with that number.")
     view = wrap(view, ["something"])
 Class = Trac
